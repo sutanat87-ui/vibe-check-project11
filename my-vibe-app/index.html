@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vibe Check</title>
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <style>
+        :root { --red: #ff5e62; --yellow: #ffbe0b; --green: #06d6a0; --dark: #1a1a1a; }
+        body { font-family: 'Sarabun', sans-serif; background-color: var(--dark); color: white; text-align: center; padding: 20px; }
+        .vibe-card { background: #2a2a2a; padding: 20px; border-radius: 15px; margin-bottom: 10px; cursor: pointer; border-left: 8px solid transparent; display: flex; justify-content: space-between; align-items: center; }
+        .red-card { border-left-color: var(--red); }
+        .yellow-card { border-left-color: var(--yellow); }
+        .green-card { border-left-color: var(--green); }
+        #response-panel { display: none; background: #333; padding: 20px; border-radius: 15px; margin-top: 20px; border: 1px solid #444; }
+    </style>
+</head>
+<body>
+    <h1>Vibe Check Today?</h1>
+    <p style="color: #888;">วันนี้เป็นยังไงบ้าง... บอกเราได้นะ</p>
+
+    <div class="vibe-card red-card" onclick="updateVibe('Red')">
+        <div style="text-align: left;"><b style="color:var(--red)">หัวร้อน / ไม่ไหวแล้ว</b><br><small>โกรธ หงุดหงิด มีเรื่องกวนใจ</small></div>
+        <span>🔥</span>
+    </div>
+
+    <div class="vibe-card yellow-card" onclick="updateVibe('Yellow')">
+        <div style="text-align: left;"><b style="color:var(--yellow)">นอยด์ๆ / ไม่โอเค</b><br><small>กังวล เหนื่อย อยากอยู่เงียบๆ</small></div>
+        <span>☁️</span>
+    </div>
+
+    <div class="vibe-card green-card" onclick="updateVibe('Green')">
+        <div style="text-align: left;"><b style="color:var(--green)">ชิลล์มาก / แฮปปี้</b><br><small>ทุกอย่างโอเค พร้อมลุยต่อ</small></div>
+        <span>✨</span>
+    </div>
+
+    <div id="response-panel">
+        <h3 id="panel-title"></h3>
+        <p id="panel-text"></p>
+        <button onclick="location.reload()" style="background:#555; color:white; border:none; padding:8px 20px; border-radius:10px;">ตกลง</button>
+    </div>
+
+    <script>
+        const vibes = {
+            Red: { title: "ใจเย็นๆ นะ เราอยู่ข้างๆ", text: "ลองหายใจลึกๆ ฟังเพลงที่ชอบนะ ครูได้รับแจ้งแล้ว เดี๋ยวครูจะทักไปคุยเงียบๆ", teacherTip: "แยกเด็กออกมา, รับฟังโดยไม่ตัดสิน, ใช้เสียงนุ่มนวล" },
+            Yellow: { title: "ไม่เป็นไรนะ นอยด์ได้", text: "หาอะไรอร่อยๆ กิน หรือเขียนระบายดูนะ ครูได้รับแจ้งแล้ว ถ้าอยากเล่าทักครูได้เลย", teacherTip: "สังเกตห่างๆ, ทักแชทส่วนตัวถามว่าไหวไหม" },
+            Green: { title: "เย้! รักษาพลังบวกไว้นะ", text: "ขอบคุณที่แชร์เรื่องดีๆ ให้ฟังนะ ขอให้เป็นวันที่ดี!", teacherTip: "กล่าวคำชมเสริมแรงบวก" }
+        };
+
+        const liffId = "2009560468-7zvIxfQa"; 
+        const scriptURL = "https://script.google.com/macros/s/AKfycbxBNU157yW-6rcOnPQSYB9x6-U4FQBMru6icxK4lTsZcrAA96FMIu1TKJ3lhXb0pOoJGw/exec";
+
+        async function main() {
+            await liff.init({ liffId: liffId });
+            if (!liff.isLoggedIn()) { liff.login(); }
+        }
+
+        async function updateVibe(vibeKey) {
+            const data = vibes[vibeKey];
+            const profile = await liff.getProfile();
+            
+            document.getElementById('response-panel').style.display = 'block';
+            document.getElementById('panel-title').innerText = data.title;
+            document.getElementById('panel-text').innerHTML = data.text;
+
+            fetch(scriptURL, {
+                method: 'POST',
+                mode: 'no-cors',
+                body: JSON.stringify({
+                    userName: profile.displayName,
+                    vibe: vibeKey,
+                    teacherTip: data.teacherTip
+                })
+            });
+        }
+        main();
+    </script>
+</body>
+</html>
